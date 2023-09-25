@@ -9,30 +9,33 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # chat_completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": "List 3 related keywords for a Google Ads ad group themed with the 'sustainable fashion theme'"}])
 
-theme="Sustainable Fashion Theme"
+example_user_input = "Provide three keywords to be used in a Google Ads ad group with the theme 'Boxing gloves'"
 
 completion = openai.ChatCompletion.create(
     model="gpt-3.5-turbo",
-    messages=[{"role": "user", "content": "List 3 related keywords for a Google Ads ad group themed with the following theme: Sustainable Fashion."}],
-    functions=[
-    {
-        "name": "get_three_keywords",
-        "description": "Get 3 keywords related to the theme provided",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "keyword_theme": {
-                    "type": "string",
-                    "description": "The theme of the keywords to be provided",
+    messages=[{"role": "user", "content": example_user_input}],
+        functions=[
+        {
+            "name": "get_keywords",
+            "description": "Get a list of Google Ads keywords",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "keywords": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "description": "A list of keywords"
+                        },
+                        "description": "List of Google Ads keywords to be added to an ad group"
+                    }
                 },
-            },
-            "required": ["keyword_theme"],
-        },
-    }
-],
-    function_call={'name': "get_three_keywords"},
+                "required": ["keywords"]
+            }
+        }
+        ],
+        function_call="auto",
 )
-
 reply_content = completion.choices[0].message
 app = FastAPI()
 
