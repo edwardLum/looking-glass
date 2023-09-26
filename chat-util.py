@@ -1,70 +1,31 @@
-class JSONCreator:
+from enum import Enum, auto
 
-    def create_property(self,
-                                 property_name,
-                                 property_type,
-                                 item_type=None,
-                                 item_description=None,
-                                 property_description=None):
+class PropertyType(Enum):
+    STRING = "string"
+    INTEGER = "integer"
+    FLOAT = "float"
+    BOOLEAN = "boolean"
+    OBJECT = "object"  # Default value
+
+class PropertyCreator:
+    def __init__(self, property_name, property_type=PropertyType.OBJECT, property_description=None):
+        self.property_name = property_name
+        self.property_type = property_type
+        self.property_description = property_description
+
+    def create_property(self):
         property_data = {
-            "type": property_type
+            "type": self.property_type.value
         }
 
-        if item_type and item_description:
-            property_data["items"] = {
-                "type": item_type,
-                "description": item_description
-            }
-
-        if property_description:
-            property_data["description"] = property_description
+        if self.property_description:
+            property_data["description"] = self.property_description
 
         return {
-            property_name: property_data
-        }
-
-    def create_json_object(self,
-                           name,
-                           description,
-                           parameter_type,
-                           property_name,
-                           property_type,
-                           item_type,
-                           item_description,
-                           property_description,
-                           required_list):
-        
-        properties = self.create_properties_object(
-            property_name,
-            property_type,
-            item_type,
-            item_description,
-            property_description
-        )
-
-        return {
-            "name": name,
-            "description": description,
-            "parameters": {
-                "type": parameter_type,
-                "properties": properties,
-                "required": required_list
-            }
+            self.property_name: property_data
         }
 
 # Test
-json_creator = JSONCreator()
-print(
-    json_creator.create_json_object(
-        name="get_keywords",
-        description="Get a list of Google Ads keywords",
-        parameter_type="object",
-        property_name="some_property",
-        property_type="array",
-        item_type="string",
-        item_description="Some description",
-        property_description="Another description",
-        required_list=["some_property"]
-    )
-)
+property_obj = PropertyCreator("sampleProperty", PropertyType.STRING, "A sample string property")
+print(property_obj.create_property())
 
