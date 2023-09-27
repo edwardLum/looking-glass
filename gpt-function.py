@@ -1,22 +1,22 @@
 
-class FunctionArgument():
-    _argument_types= {"string", "integer", "float", "boolean"}
+class FunctionParameter():
+    _parameter_types= {"string", "integer", "float", "boolean"}
     
-    def __init__(self, argument_name, argument_type, argument_description=None):
-        self.argument_name = argument_name
-        self._argument_type = None
-        self.argument_type = argument_type
-        self.argument_description = argument_description
+    def __init__(self, parameter_name, parameter_type, parameter_description=None):
+        self.parameter_name = parameter_name
+        self._parameter_type = None
+        self.parameter_type = parameter_type
+        self.parameter_description = parameter_description
     
     @property
-    def argument_type(self):
-        return self._argument_type
+    def parameter_type(self):
+        return self._parameter_type
 
-    @argument_type.setter
-    def argument_type(self, value):
-        if value not in self._argument_types:
-            raise ValueError(f"Invalid color. Permitted colors are: {', '.join(self._argument_types)}")
-        self._argument_type = value
+    @parameter_type.setter
+    def parameter_type(self, value):
+        if value not in self._parameter_types:
+            raise ValueError(f"Invalid color. Permitted colors are: {', '.join(self._parameter_types)}")
+        self._parameter_type = value
 
     def create_property(self):
         pass
