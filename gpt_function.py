@@ -1,5 +1,13 @@
 
+class Function():
+    def __init__(self, name, description, parameters):
+        self.name = name
+        self.description = description
+        self.parameters = parameters
+        self.json = self.create_json
 
+    def create_json(self):
+        pass
 
 class FunctionParameter():
     def __init__(self, param_type, properties, required):
@@ -12,23 +20,23 @@ class FunctionParameter():
         pass
 
 class FunctionProperty():
-    __property_types= {"string", "integer", "float", "boolean"}
+    _property_types= {"string", "integer", "float", "boolean"}
     
-    def __init__(self, _property_name, _property_type, _property_description=None):
-        self._property_name = _property_name
+    def __init__(self, property_name, property_type, property_description=None):
+        self._property_name = property_name
         self._property_type = None
-        self._property_type = _property_type
-        self._property_description = _property_description
+        self.property_type = property_type
+        self._property_description = property_description
         self.json = self.create_json()
     
     @property
-    def _property_type(self):
-        return self.__property_type
+    def property_type(self):
+        return self._property_type
 
-    @_property_type.setter
-    def _property_type(self, value):
-        if value not in self.__property_types:
-            raise ValueError(f"Invalid color. Permitted colors are: {', '.join(self.__property_types)}")
+    @property_type.setter
+    def property_type(self, value):
+        if value not in self._property_types:
+            raise ValueError(f"Invalid color. Permitted colors are: {', '.join(self._property_types)}")
         self._property_type = value
 
     def create_json(self):
