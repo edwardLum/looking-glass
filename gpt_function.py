@@ -1,13 +1,21 @@
+import json
 
 class Function():
     def __init__(self, name, description, parameters):
         self.name = name
         self.description = description
         self.parameters = parameters
-        self.json = self.create_json
 
-    def create_json(self):
-        pass
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "description": self.description,
+            "parameters": self.parameters.to_dict()
+        }
+
+    def to_json(self):
+        return json.dumps(self.to_dict())
+
 
 class FunctionParameter():
     def __init__(self, param_type, properties, required):
@@ -27,7 +35,6 @@ class FunctionProperty():
         self._property_type = None
         self.property_type = property_type
         self._property_description = property_description
-        self.json = self.create_json()
     
     @property
     def property_type(self):
@@ -39,6 +46,4 @@ class FunctionProperty():
             raise ValueError(f"Invalid color. Permitted colors are: {', '.join(self._property_types)}")
         self._property_type = value
 
-    def create_json(self):
-        pass
         
