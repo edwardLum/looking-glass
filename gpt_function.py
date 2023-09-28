@@ -16,7 +16,7 @@ class FunctionProperty():
     
     def __init__(self, _property_name, _property_type, _property_description=None):
         self._property_name = _property_name
-        self.__property_type = None
+        self._property_type = None
         self._property_type = _property_type
         self._property_description = _property_description
         self.json = self.create_json()
@@ -29,7 +29,7 @@ class FunctionProperty():
     def _property_type(self, value):
         if value not in self.__property_types:
             raise ValueError(f"Invalid color. Permitted colors are: {', '.join(self.__property_types)}")
-        self.__property_type = value
+        self._property_type = value
 
     def create_json(self):
         pass
