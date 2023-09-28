@@ -22,19 +22,16 @@ class FunctionParameter():
         self.param_type = param_type
         self.properties = properties
         self.required = required 
-        self.json = self.create_json()
     
-    def create_json(self):
-        pass
 
 class FunctionProperty():
     _property_types= {"string", "integer", "float", "boolean"}
     
-    def __init__(self, property_name, property_type, property_description=None):
-        self._property_name = property_name
+    def __init__(self, name, property_type, description=None):
+        self.name = name
         self._property_type = None
         self.property_type = property_type
-        self._property_description = property_description
+        self.description = description 
     
     @property
     def property_type(self):
@@ -45,5 +42,13 @@ class FunctionProperty():
         if value not in self._property_types:
             raise ValueError(f"Invalid color. Permitted colors are: {', '.join(self._property_types)}")
         self._property_type = value
+
+    def to_dict(self):
+        return {
+                self.name: {
+                    "type": self.property_type,
+                    "description": self.description
+                    }
+        }
 
         
