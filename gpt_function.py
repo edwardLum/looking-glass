@@ -18,11 +18,23 @@ class Function():
 
 
 class FunctionParameter():
-    def __init__(self, param_type, properties, required):
+    def __init__(self, required, param_type="object", properties=[]):
         self.param_type = param_type
         self.properties = properties
-        self.required = required 
-    
+        self.required = required  
+
+    def to_dict(self):
+        properties_list = {prop.name: prop.to_dict() for prop in self.properties}
+
+        return {
+            "type": self.param_type,
+            "properties": properties_list,
+            "required": self.required
+        }
+
+    def to_json(self):
+        return json.dumps(self.to_dict())
+
 
 class FunctionProperty():
     _property_types= {"string", "integer", "float", "boolean"}
@@ -32,7 +44,7 @@ class FunctionProperty():
         self._property_type = None
         self.property_type = property_type
         self.description = description 
-    
+
     @property
     def property_type(self):
         return self._property_type
@@ -45,10 +57,11 @@ class FunctionProperty():
 
     def to_dict(self):
         return {
-                self.name: {
-                    "type": self.property_type,
-                    "description": self.description
-                    }
-        }
+                "type": self.property_type,
+                "description": self.description
+                }
+
+    def to_json(self):
+        return json.dumps(self.to_dict())
 
         
