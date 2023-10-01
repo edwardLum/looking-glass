@@ -32,34 +32,71 @@ def keyword_function():
 
     return keyword_func.to_json()
 
-def manual_function(theme, no_of_keywords):
-    example_user_input = "Generate {} keywords to be used in a Google Ads campaign. Keyword theme is {}".format(no_of_keywords, theme)
+def simplified():
+# Define the function schema
+    functions = {
+        "generate_keywords": {
+            "type": "function",
+            "args": {"theme": "string"},
+            "output": {"keywords": "array"}
+        }
+    }
+
+# Make the API call
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        prompt="Generate keywords for the theme: travel",
+        functions=functions,
+        function_call={"name": "generate_keywords", "args": {"theme": "travel"}}
+    )
+
+# Extract the keywords from the response
+    keywords = response['choices'][0]['function_call']['output']['keywords']
+    print(keywords)
+
+
+def manual_function():
+    example_user_input = "Recommend me a tracklist of 20 tracks and remixes from 2019."
 
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": example_user_input}],
-            functions=[
-            {"name": "get_google_ads_keywords", 
-             "description": "A function to generate given number of keywords based on given theme, to be used by a Google Ads campaign", 
-             "parameters": {"type": "object", 
-                            "properties": {
-                                "keywords": {
-                                    "type": "array", 
-                                    "items": {
-                                        "type": "string",
-                                        "description": "A keyword to be used in a Google Ads."
-                                        }
-                                    }, 
-                                "required": ["keywords"]
-                                }
-                            }
+        model="gpt-3.5-turbo-0613",
+        messages=[
+            {"role": "user",
+             "content": example_user_input
              }
-            ],
-            function_call="auto",
+        ],
+        functions=[
+            {
+                "name": "get_tracklist", 
+                "description": "Gets a list of tracks from a query",
+                "parameters": {
+                    "type": "object", 
+                    "properties": {
+                        "tracklist": {
+                            "type": "array", 
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "artist": {
+                                        "type": "string",
+                                        "description": "The artist of the track."
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "description": "The title of the track."
+                                    },
+                                }
+                            },
+                        },
+                    },
+                    "required": ["tracklist"]
+                }
+            }
+
+        ],
+        function_call= {"name": "get_tracklist"},
     )
-    reply_content = completion.choices[0].message
-    print(example_user_input)
-    return reply_content
+    print(completion)
 
 def manual_function_two(theme, no_of_keywords):
     # example_user_input = "How do I install Tensorflow for my GPU?"
