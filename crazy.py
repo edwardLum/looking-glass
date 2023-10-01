@@ -3,10 +3,10 @@ import os
 import json
 
 
-def tracklist():
+def campaign_suggestion(campaign_theme):
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
-    example_input = "Recommend 5 ad groups with 10 keywords each, for a Google Ads campaign. The campaign theme is Sports Betting."
+    example_input = "Recommend 5 ad groups with 10 keywords each, for a Google Ads campaign. The campaign theme is {}.".format(campaign_theme)
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",
