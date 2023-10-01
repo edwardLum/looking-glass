@@ -20,10 +20,68 @@ app = FastAPI()
 async def root():
     return {"message": "Hello World"}
 
-@app.get("/keywords/")
-async def read_keywords(theme: str = "None", no_of_keywords: int = 3):
-    pass
+@app.get("/campaign_structure/")
+async def read_keywords(campaign_theme: str = "None"):
+    return campaign_suggestion((campaign_theme)) 
     
+def campaign_suggestion(campaign_theme):
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+
+    example_input = "Recommend 5 ad groups with 10 keywords each, for a Google Ads campaign. The campaign theme is {}.".format(campaign_theme)
+
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-0613",
+        messages=[
+            {
+                "role": "user",
+                "content": example_input,
+            }
+        ],
+        functions=[
+        {
+            "name": "get_ad_groups",
+            "description": "Gets a list of ad groups from a query",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ad_groups": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "group_name": {
+                                    "type": "string",
+                                    "description": "The name of the ad group."
+                                },
+                                "keywords": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "keyword": {
+                                                "type": "string",
+                                                "description": "A keyword associated with the ad group."
+                                            }
+                                        }
+                                    },
+                                    "description": "The list of keywords associated with the ad group."
+                                }
+                            }
+                        },
+                        "description": "The list of ad groups."
+                    }
+                },
+                "required": ["ad_groups"]
+            }
+        }
+
+        ],
+        function_call={"name": "get_ad_groups"}
+    )
+    reply_content = completion.choices[0].message
+    ad_groups = reply_content.to_dict()['function_call']['arguments']
+    return json.loads(ad_groups)
+
 def keyword_function():
     no_of_keywords = FunctionProperty("number_of_keywords", "integer", description="The number of keywords to be returned by the function")
     keyword_theme = FunctionProperty("keyword_theme", "string", description="The theme of the keywords to be returned")
