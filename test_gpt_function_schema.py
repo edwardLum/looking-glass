@@ -7,19 +7,31 @@ class TestFunctionProperty(unittest.TestCase):
         self.func_property_string = {
                 'name': {
                     'type': 'string',
-                    'description': 'Name of the person'
+                    'description': 'Name of the person.'
                     }
                 }
 
+        self.func_property_integer = {
+                'grades': {
+                    'type': 'integer',
+                    'description': 'GPA of the student.'
+                    }
+                }
 
     def test_property_dict_serialization_string(self):
         name_property_string = FunctionProperty(name="name", 
                                          type="string",
-                                         description='Name of the person')
+                                         description='Name of the person.')
         
+        grades_property_string = FunctionProperty(name="grades", 
+                                         type="integer",
+                                         description='GPA of the student.')
+
         self.assertEqual(self.func_property_string, 
                          name_property_string.model_dump(exclude_none=True))
 
+        self.assertEqual(self.func_property_integer, 
+                         grades_property_string.model_dump(exclude_none=True))
 
 #
 #class TestFunctionParameter(unittest.TestCase):
