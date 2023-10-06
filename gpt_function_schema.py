@@ -2,8 +2,9 @@ import os
 import json
 
 from pprint import pprint
+from openai.api_resources import completion
 
-from pydantic import BaseModel, Field, field_validator, ValidationError, model_validator, ConfigDict
+from pydantic import BaseModel, Field, field_validator, ValidationError, model_serializer, model_validator, ConfigDict
 from typing import List, Union, Optional, Dict, Any
 
 import openai
@@ -40,6 +41,13 @@ class FunctionProperty(BaseModel):
             raise ValidationError(f"properties field should be empty for type {property_type}")
         return values
 
+    @model_serializer
+    def serialize_model(self) -> Dict[str, Any]:
+        return {self.name: {
+                    "type": self.property_type,
+                    "description": self.description,
+                    }
+            }
 
 FunctionProperty.model_rebuild()
 
@@ -47,7 +55,7 @@ class FunctionParameter(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     property_type: str = Field(default="object", alias="type")
-    properties: List[FunctionProperty]
+    properties: FunctionProperty
     required: List[str]
 
 
@@ -62,7 +70,8 @@ class FunctionCalling(BaseModel):
     functions: List[Function]
     function_call: str
 
-def create_function_calling_json(example_input: str) -> str:
+def create_function_calling_json(example_input):
+
     # Create a simple property
     simple_property = FunctionProperty(
         name="keyword",
@@ -73,7 +82,7 @@ def create_function_calling_json(example_input: str) -> str:
     # Create a parameter with the simple property
     function_param = FunctionParameter(
         type="object",
-        properties=[simple_property],
+        properties=simple_property,
         required=["keyword"]
     )
     
@@ -85,23 +94,40 @@ def create_function_calling_json(example_input: str) -> str:
     )
     
     # Create a FunctionCalling with the function
-    function_calling = FunctionCalling(
-        model="gpt-3.5-turbo-0613",
-        messages=[{"role": "user", "content": example_input}],
-        functions=[function_model],
-        function_call="auto"
-    )
+#    function_calling = FunctionCalling(
+#        model="gpt-3.5-turbo-0613",
+#        messages=[{"role": "user", "content": example_input}],
+#        functions=[function_model],
+#        function_call="auto"
+#    )
     
     # Get the JSON representation of the FunctionCalling
-    function_calling_json = function_calling.model_dump_json(indent=4, exclude_none=True, by_alias=True)
-    return function_calling_json
+    function_model_json = function_model.model_dump(exclude_none=True, by_alias=True)
+    pprint(function_model_json)
+    return function_model_json
 
+def query_simple():
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    example_input = "Generate a google ads keyword with the keyword theme of boxing gloves"
+
+    completion = openai.ChatCompletion.create(
+            model = 'gpt-3.5-turbo-0613',
+            messages = [{'role': 'user', 'content': example_input}],
+            functions = [create_function_calling_json(example_input)],
+            function_call = 'auto',
+            )
+
+    reply_content = completion.choices[0].message
+    ad_groups = reply_content.to_dict()['function_call']['arguments']
+    return json.loads(ad_groups)
+     
 def query_chat():
 
     openai.api_key = os.getenv("OPENAI_API_KEY")
     example_input = "Generate a google ads keyword with the keyword theme of boxing gloves"
     function_calling_json = create_function_calling_json(example_input) 
-
+    print("\n-----------Function-----------\n\n")
+    print(function_calling_json)
     function_calling_dict = json.loads(function_calling_json)
 
     model = function_calling_dict['model']
@@ -109,19 +135,23 @@ def query_chat():
     functions = function_calling_dict['functions']
     function_call = function_calling_dict['function_call']
 
+    print(function_calling_json)
+    print("\n-----------Function-----------\n\n")
     print(functions)
+    print("\n-----------Function Call-----------\n\n")
+    print(function_call)
 
-#    completion = openai.ChatCompletion.create(
-#        model=model,
-#        messages=messages,
-#        functions=functions,
-#        function_call=function_call
-#    )
+    completion = openai.ChatCompletion.create(
+        model=model,
+        messages=messages,
+        functions=functions,
+        function_call=function_call
+    )
 
     reply_content = completion.choices[0].message
     ad_groups = reply_content.to_dict()['function_call']['arguments']
     return json.loads(ad_groups)
 
 if __name__ == "__main__":
-    keyword = query_chat()
+    keyword = query_simple()
     print(keyword)
