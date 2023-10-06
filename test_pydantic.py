@@ -44,9 +44,9 @@ class FunctionProperty(BaseModel):
 FunctionProperty.model_rebuild()
 
 class FunctionParameter(BaseModel):
-    # model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True)
 
-    parameter_type: str = Field(default="object", serialization_alias="type")
+    property_type: str = Field(default="object", alias="type")
     properties: List[FunctionProperty]
     required: List[str]
 
@@ -66,13 +66,13 @@ def create_function_calling_json(example_input: str) -> str:
     # Create a simple property
     simple_property = FunctionProperty(
         name="keyword",
-        property_type="string",
+        type="string",
         description="A keyword."
     )
     
     # Create a parameter with the simple property
     function_param = FunctionParameter(
-        param_type="object",
+        type="object",
         properties=[simple_property],
         required=["keyword"]
     )
@@ -93,7 +93,7 @@ def create_function_calling_json(example_input: str) -> str:
     )
     
     # Get the JSON representation of the FunctionCalling
-    function_calling_json = function_calling.model_dump_json(indent=4, exclude_none=True)
+    function_calling_json = function_calling.model_dump_json(indent=4, exclude_none=True, by_alias=True)
     return function_calling_json
 
 def query_chat():
