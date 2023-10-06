@@ -51,13 +51,29 @@ class FunctionProperty(BaseModel):
 
 FunctionProperty.model_rebuild()
 
+class FunctionProperties(BaseModel):
+    properties: List[FunctionProperty]
+
+    @model_serializer
+    def serialize_model(self) -> Dict[str, str]:
+        property_dict = {}
+        for func_property in self.properties:
+            property_dict.update(func_property.model_dump(exclude_none=True))
+
+        return property_dict
+
 class FunctionParameter(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     property_type: str = Field(default="object", alias="type")
-    properties: FunctionProperty
+    properties: List[FunctionProperty]
     required: Optional[List[str]] = None
 
+    @model_serializer
+    def serialize_model(self) -> Dict[str, Any]:
+        return {'type': self.property_type,
+                'properties': {}}
+    
 
 class Function(BaseModel):
     name: str
@@ -121,37 +137,3 @@ def query_simple():
     ad_groups = reply_content.to_dict()['function_call']['arguments']
     return json.loads(ad_groups)
      
-def query_chat():
-
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-    example_input = "Generate a google ads keyword with the keyword theme of boxing gloves"
-    function_calling_json = create_function_calling_json(example_input) 
-    print("\n-----------Function-----------\n\n")
-    print(function_calling_json)
-    function_calling_dict = json.loads(function_calling_json)
-
-    model = function_calling_dict['model']
-    messages = function_calling_dict['messages']
-    functions = function_calling_dict['functions']
-    function_call = function_calling_dict['function_call']
-
-    print(function_calling_json)
-    print("\n-----------Function-----------\n\n")
-    print(functions)
-    print("\n-----------Function Call-----------\n\n")
-    print(function_call)
-
-    completion = openai.ChatCompletion.create(
-        model=model,
-        messages=messages,
-        functions=functions,
-        function_call=function_call
-    )
-
-    reply_content = completion.choices[0].message
-    ad_groups = reply_content.to_dict()['function_call']['arguments']
-    return json.loads(ad_groups)
-
-if __name__ == "__main__":
-    keyword = query_simple()
-    print(keyword)
