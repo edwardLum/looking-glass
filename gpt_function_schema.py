@@ -56,7 +56,7 @@ class FunctionParameter(BaseModel):
 
     property_type: str = Field(default="object", alias="type")
     properties: FunctionProperty
-    required: List[str]
+    required: Optional[List[str]] = None
 
 
 class Function(BaseModel):
