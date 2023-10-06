@@ -66,7 +66,7 @@ class FunctionParameter(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     property_type: str = Field(default="object", alias="type")
-    properties: List[FunctionProperty]
+    properties: FunctionProperties 
     required: Optional[List[str]] = None
 
     @model_serializer
