@@ -55,7 +55,7 @@ class FunctionProperties(BaseModel):
     properties: List[FunctionProperty]
 
     @model_serializer
-    def serialize_model(self) -> Dict[str, str]:
+    def serialize_model(self) -> Dict[str, Any]:
         property_dict = {}
         for func_property in self.properties:
             property_dict.update(func_property.model_dump(exclude_none=True))
@@ -72,7 +72,7 @@ class FunctionParameter(BaseModel):
     @model_serializer
     def serialize_model(self) -> Dict[str, Any]:
         return {'type': self.property_type,
-                'properties': {}}
+                'properties': self.properties}
     
 
 class Function(BaseModel):
@@ -86,41 +86,6 @@ class FunctionCalling(BaseModel):
     functions: List[Function]
     function_call: str
 
-def create_function_calling_json(example_input):
-
-    # Create a simple property
-    simple_property = FunctionProperty(
-        name="keyword",
-        type="string",
-        description="A keyword."
-    )
-    
-    # Create a parameter with the simple property
-    function_param = FunctionParameter(
-        type="object",
-        properties=simple_property,
-        required=["keyword"]
-    )
-    
-    # Create a function with the parameter
-    function_model = Function(
-        name="get_keyword",
-        description="Gets a keyword.",
-        parameters=function_param
-    )
-    
-    # Create a FunctionCalling with the function
-#    function_calling = FunctionCalling(
-#        model="gpt-3.5-turbo-0613",
-#        messages=[{"role": "user", "content": example_input}],
-#        functions=[function_model],
-#        function_call="auto"
-#    )
-    
-    # Get the JSON representation of the FunctionCalling
-    function_model_json = function_model.model_dump(exclude_none=True, by_alias=True)
-    pprint(function_model_json)
-    return function_model_json
 
 def query_simple():
     openai.api_key = os.getenv("OPENAI_API_KEY")
