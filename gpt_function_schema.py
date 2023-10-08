@@ -43,6 +43,7 @@ class FunctionProperty(BaseModel):
     properties: Optional[List['FunctionProperty']] = None
 
     @field_validator('property_type')
+    @classmethod
     def validate_property_type(cls, value):
         allowed_types = {"string", "integer", "float", "boolean", "object", "array"}
         if value not in allowed_types:
