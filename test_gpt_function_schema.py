@@ -73,13 +73,12 @@ class TestDictSerialization(unittest.TestCase):
 
     def test_property_dict_serialization_with_array(self):
         terminal_command_array_item = ArrayItem(description="A terminal command string",
-                                                type="integer")
-        
+                                                type="string")
+
         terminal_command_array = FunctionProperty(name="commands", 
-                                                type="array",
+                                                property_type="array",
                                                 items=terminal_command_array_item,
                                                 description="List of terminal command strings to be executed")
-        
 
         self.assertEqual(self.func_property_array, 
                          terminal_command_array.model_dump(exclude_none=True))
