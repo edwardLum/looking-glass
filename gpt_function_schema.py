@@ -10,13 +10,36 @@ from typing import List, Union, Optional, Dict, Any
 import openai
 
 
+class ArrayItem (BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    item_type: str = Field(alias="type") 
+    description: str
+    
+
+    @field_validator('item_type')
+    @classmethod
+    def validate_item_type(cls, value):
+        allowed_types = {"string", "integer", "float", "boolean", "object", "array"}
+        if value not in allowed_types:
+            raise ValueError(f"Invalid type. Permitted types are: {', '.join(allowed_types)}")
+        return value
+
+    @model_serializer
+    def serialize_model(self) -> Dict[str, Any]:
+        return {"items" : {
+                "type": self.item_type,
+                "description": self.description,
+                }
+        }
+
 class FunctionProperty(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     name: str
     property_type: str = Field(alias="type")
     description: Optional[str]
-    items: Optional['FunctionProperty'] = None 
+    items: Optional[ArrayItem] = None
     properties: Optional[List['FunctionProperty']] = None
 
     @field_validator('property_type')
@@ -50,6 +73,7 @@ class FunctionProperty(BaseModel):
             }
 
 FunctionProperty.model_rebuild()
+
 
 class FunctionProperties(BaseModel):
     properties: List[FunctionProperty]
