@@ -19,7 +19,7 @@ class ArrayItem (BaseModel):
 
     @field_validator('item_type')
     @classmethod
-    def validate_item_type(cls, value):
+    def validate_item_type(cls, value: str):
         allowed_types = {"string", "integer", "float", "boolean", "object", "array"}
         if value not in allowed_types:
             raise ValueError(f"Invalid type. Permitted types are: {', '.join(allowed_types)}")
@@ -27,11 +27,11 @@ class ArrayItem (BaseModel):
 
     @model_serializer
     def serialize_model(self) -> Dict[str, Any]:
-        return {"items" : {
+        return {
                 "type": self.item_type,
                 "description": self.description,
                 }
-        }
+
 
 class FunctionProperty(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
@@ -44,29 +44,37 @@ class FunctionProperty(BaseModel):
 
     @field_validator('property_type')
     @classmethod
-    def validate_property_type(cls, value):
+    def validate_property_type(cls, value: str):
         allowed_types = {"string", "integer", "float", "boolean", "object", "array"}
         if value not in allowed_types:
             raise ValueError(f"Invalid type. Permitted types are: {', '.join(allowed_types)}")
         return value
 
     @model_validator(mode='before')
-    def check_items_and_properties(cls, values):
+    @classmethod
+    def check_items_and_properties(cls, values: Any) -> Any:
         property_type = values.get('property_type')
         items = values.get('items')
         properties = values.get('properties')
         if property_type == 'array' and items is None:
-            raise ValidationError(f"items field is required for type array")
+            raise ValueError(f"items field is required for type array")
         elif property_type != 'array' and items is not None:
-            raise ValidationError(f"items field should be empty for type {property_type}")
+            raise ValueError(f"items field should be empty for type {property_type}")
         if property_type == 'object' and properties is None:
-            raise ValidationError(f"properties field is required for type object")
+            raise ValueError(f"properties field is required for type object")
         elif property_type != 'object' and properties is not None:
-            raise ValidationError(f"properties field should be empty for type {property_type}")
+            raise ValueError(f"properties field should be empty for type {property_type}")
         return values
 
     @model_serializer
     def serialize_model(self) -> Dict[str, Any]:
+        if self.items:
+            return {self.name: {
+                        "type": self.property_type,
+                        "description": self.description,
+                        "items": self.items.model_dump(exclude_none=True)
+                        }
+                }
         return {self.name: {
                     "type": self.property_type,
                     "description": self.description,
