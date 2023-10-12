@@ -56,6 +56,25 @@ class TestDictSerialization(unittest.TestCase):
                 }
             }
 
+        self.func_property_array_of_objects = {
+                    "tracklist": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "artist": {
+                                    "type": "string",
+                                    "description": "The artist of the track.",
+                                },
+                                "title": {
+                                    "type": "string",
+                                    "description": "The title of the track.",
+                                },
+                            }
+                        },
+                    },
+                }
+
     def test_property_dict_serialization_simple(self):
         name_property_string = FunctionProperty(name="name", 
                                          type="string",
@@ -113,6 +132,24 @@ class TestDictSerialization(unittest.TestCase):
         parameter = FunctionParameter(properties=properties)
         
         self.assertEqual(self.func_parameter, 
+                         parameter.model_dump(exclude_none=True))
+
+    def test_parameter_dict_serialization_with_array_of_objects(self):
+        artist_property_string = FunctionProperty(name="artist", 
+                                         type="string",
+                                         description='The artist of the track.')
+        
+        title_property_string = FunctionProperty(name="title", 
+                                         type="string",
+                                         description='The title of the track')
+
+        properties = FunctionProperties(properties=[artist_property_string,
+                                                    title_property_string])
+
+        parameter = FunctionParameter(properties=properties)
+        
+        print(parameter.model_dump(exclude_none=True))
+        self.assertEqual(self.func_property_array_of_objects, 
                          parameter.model_dump(exclude_none=True))
 
 
