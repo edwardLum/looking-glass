@@ -40,7 +40,7 @@ class FunctionProperty(BaseModel):
     property_type: str = Field(alias="type")
     description: Optional[str]
     items: Optional[ArrayItem] = None
-    properties: Optional[List['FunctionProperty']] = None
+    properties: Optional[List["FunctionProperty"]] = None
 
     @field_validator('property_type')
     @classmethod
@@ -75,6 +75,12 @@ class FunctionProperty(BaseModel):
                         "items": self.items.model_dump(exclude_none=True)
                         }
                 }
+        if self.properties:
+            return {self.name: {
+                        "type": self.property_type,
+                        "properties": {prop.model_dump(exclude_none=True) for prop in self.properties},
+                        }
+                    }
         return {self.name: {
                     "type": self.property_type,
                     "description": self.description,
@@ -106,7 +112,8 @@ class FunctionParameter(BaseModel):
     def serialize_model(self) -> Dict[str, Any]:
         return {'type': self.property_type,
                 'properties': self.properties}
-    
+   
+FunctionProperty.update_forward_refs()
 
 class Function(BaseModel):
     name: str
