@@ -62,18 +62,46 @@ class ArrayProperty(Property):
 
 class ObjectProperty(Property):
     property_type: str = "object"
-    properties: Dict[str, Union[StringProperty, 
+    properties: List[Union[StringProperty, 
                                 IntegerProperty, 
                                 ArrayProperty,
                                 BooleanProperty,
                                 FloatProperty]]
+
+    @model_serializer
+    def serialize_model(self):
+        properties_dict = {}
+        for prop in self.properties:
+            properties_dict.update(prop.model_dump())
+
+        return {self.name: {
+            "type": self.property_type,
+            "properties": properties_dict,
+            "description": self.description,
+            }
+
+    }
 
     
 
 if __name__=="__main__":
    artist = ArrayString(name="artist",
                            description="The artist of the track") 
+
    artists = ArrayProperty(name="artists",
                                 items=artist,
                                 description="A list of artists")
+
+   artistProperty = StringProperty(name="artist",
+                           description="The artist of the track") 
+
+   titleProperty = StringProperty(name="title",
+                               description="The title of the track")
    pprint(artists.model_dump())
+   track = ObjectProperty(name="Track",
+                          description="A track with artist and title",
+                          properties=[artistProperty,
+                                      titleProperty])
+
+   pprint(track.model_dump())
+
