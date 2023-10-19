@@ -6,7 +6,7 @@ import openai
 
 from fastapi import FastAPI
 
-from gpt_function import FunctionParameter, FunctionProperty, Function
+from gpt_function_schema import ArrayItem, FunctionParameter, FunctionProperty, Function
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -27,6 +27,17 @@ async def get_structure(campaign_theme: str = "None"):
 @app.get("/keywords/")
 async def get_keywords(keyword_theme: str = "None"):
     return keywords_suggestion(keyword_theme)
+
+
+def keyword_query(keyword_theme):
+    keyword_item = ArrayItem(description="A Google Ad keyword",
+                             type="string")
+    keywords_array = FunctionProperty(name="keywords",
+                                      property_type="array",
+                                      items=keyword_item,
+                                      description="A list of Google Ads keywords"
+
+        
 
 def campaign_suggestion(campaign_theme):
     openai.api_key = os.getenv("OPENAI_API_KEY")
