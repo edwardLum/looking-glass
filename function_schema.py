@@ -7,9 +7,9 @@ from pydantic.functional_serializers import model_serializer
 from pprint import pprint
 
 class Property(BaseModel):
-    name: str
+    name: str = None
     description: str
-    property_type: str 
+    property_type: str
 
     @model_serializer
     def serialize_model(self):
@@ -48,7 +48,7 @@ class ArrayInteger(Item):
 
 class ArrayProperty(Property):
     property_type: str = "array"
-    items: Union["ArrayString", 
+    items: Union["ArrayString",
                  "ArrayInteger",
                  "ObjectProperty"]
 
@@ -62,8 +62,8 @@ class ArrayProperty(Property):
 
 class ObjectProperty(Property):
     property_type: str = "object"
-    properties: List[Union[StringProperty, 
-                                IntegerProperty, 
+    properties: List[Union[StringProperty,
+                                IntegerProperty,
                                 ArrayProperty,
                                 BooleanProperty,
                                 FloatProperty]]
@@ -82,18 +82,18 @@ class ObjectProperty(Property):
 
     }
 
-    
+
 
 if __name__=="__main__":
    artist = ArrayString(name="artist",
-                           description="The artist of the track") 
+                           description="The artist of the track")
 
    artists = ArrayProperty(name="artists",
                                 items=artist,
                                 description="A list of artists")
 
    artistProperty = StringProperty(name="artist",
-                           description="The artist of the track") 
+                           description="The artist of the track")
 
    titleProperty = StringProperty(name="title",
                                description="The title of the track")
@@ -104,4 +104,3 @@ if __name__=="__main__":
                                       titleProperty])
 
    pprint(track.model_dump())
-
