@@ -40,16 +40,16 @@ class BooleanProperty(Property):
 class FloatProperty(Property):
     property_type: str = "float"
 
-class ArrayString(Item):
+class StringItem(Item):
     property_type: str = "string"
 
-class ArrayInteger(Item):
+class IntegerItem(Item):
     property_type: str = "integer"
 
 class ArrayProperty(Property):
     property_type: str = "array"
-    items: Union["ArrayString",
-                 "ArrayInteger",
+    items: Union["StringItem",
+                 "IntegerItem",
                  "ObjectProperty"]
 
     @model_serializer
