@@ -1,7 +1,7 @@
 from os import walk
 import unittest
 
-from function_schema import IntegerProperty, StringProperty, ArrayProperty, ArrayString
+from function_schema import IntegerProperty, StringProperty, ArrayProperty, StringItem
 
 
 class TestPropertySerialization(unittest.TestCase):
@@ -45,7 +45,7 @@ class TestPropertySerialization(unittest.TestCase):
                 }
             }
 
-        self.array = {
+        self.commands = {
                 "commands": {
                     "type": "array",
                     "items": {
@@ -79,17 +79,26 @@ class TestPropertySerialization(unittest.TestCase):
         name =StringProperty(name="name",
                              description='Name of the person.')
 
-        grades = IntegerProperty(name="grades", 
+        grades = IntegerProperty(name="grades",
                                  description='GPA of the student.')
 
         self.assertEqual(self.name,
-                         name.model_dump(exclude_none=True))
+                         name.model_dump())
 
         self.assertEqual(self.grades,
-                         grades.model_dump(exclude_none=True))
+                         grades.model_dump())
 
 
 
+    def test_array_property_serialization(self):
+        command =StringItem(description='A terminal command string')
+
+        commands = ArrayProperty(name="commands",
+                                 description='List of terminal command strings to be executed',
+                                 items=command)
+
+        self.assertEqual(self.commands,
+                         commands.model_dump(exclude_none=True))
 
 
 if __name__ == "__main__":
