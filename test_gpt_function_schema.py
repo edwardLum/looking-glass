@@ -4,23 +4,23 @@ import unittest
 from function_schema import IntegerProperty, StringProperty, ArrayProperty, ArrayString
 
 
-class TestDictSerialization(unittest.TestCase):
+class TestPropertySerialization(unittest.TestCase):
     def setUp(self):
-        self.func_property_string = {
+        self.name = {
                 'name': {
                     'type': 'string',
                     'description': 'Name of the person.'
                     }
                 }
 
-        self.func_property_integer = {
+        self.grades = {
                 'grades': {
                     'type': 'integer',
                     'description': 'GPA of the student.'
                     }
                 }
 
-        self.func_properties = {
+        self.properties = {
                 'name': {
                     'type': 'string',
                     'description': 'Name of the person.'
@@ -31,7 +31,7 @@ class TestDictSerialization(unittest.TestCase):
                 }
             }
 
-        self.func_parameter = {
+        self.parameter = {
             'type': 'object',
             'properties': {
                     'name': {
@@ -45,7 +45,7 @@ class TestDictSerialization(unittest.TestCase):
                 }
             }
 
-        self.func_property_array = {
+        self.array = {
                 "commands": {
                     "type": "array",
                     "items": {
@@ -56,7 +56,7 @@ class TestDictSerialization(unittest.TestCase):
                 }
             }
 
-        self.func_property_array_of_objects = {
+        self.array_of_objects = {
                     "tracklist": {
                         "type": "array",
                         "items": {
@@ -75,18 +75,20 @@ class TestDictSerialization(unittest.TestCase):
                     },
                 }
 
-    def test_property_dict_serialization_simple(self):
+    def test_simple_property_serialization(self):
         name =StringProperty(name="name",
                              description='Name of the person.')
-        
+
         grades = IntegerProperty(name="grades", 
                                  description='GPA of the student.')
 
-        self.assertEqual(self.func_property_string, 
+        self.assertEqual(self.name,
                          name.model_dump(exclude_none=True))
 
-        self.assertEqual(self.func_property_integer, 
+        self.assertEqual(self.grades,
                          grades.model_dump(exclude_none=True))
+
+
 
 
 
