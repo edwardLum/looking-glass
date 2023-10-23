@@ -35,7 +35,6 @@ class StringProperty(Property):
 class IntegerProperty(Property):
     property_type: str = "integer"
 
-
 class BooleanProperty(Property):
     property_type: str = "boolean"
 
@@ -108,7 +107,7 @@ class ObjectItem(Item):
 class Function(BaseModel):
     description: str
     name: str
-    parameters: property
+    parameters: Property
 
     @model_serializer
     def serialize_model(self):
