@@ -104,3 +104,16 @@ class ObjectItem(Item):
             "type": self.property_type,
             "properties": properties_dict,
             }
+
+class Function(BaseModel):
+    description: str
+    name: str
+    parameters: property
+
+    @model_serializer
+    def serialize_model(self):
+        return {
+        "name": self.name,
+        "description": self.description,
+        "parameters": self.property.model_dump()
+        }
