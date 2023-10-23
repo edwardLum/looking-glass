@@ -1,7 +1,7 @@
 from os import walk
 import unittest
 
-from function_schema import IntegerProperty, StringProperty, ArrayProperty, StringItem
+from function_schema import IntegerProperty, ObjectItem, StringProperty, ArrayProperty, StringItem
 
 
 class TestPropertySerialization(unittest.TestCase):
@@ -59,6 +59,7 @@ class TestPropertySerialization(unittest.TestCase):
         self.array_of_objects = {
                     "tracklist": {
                         "type": "array",
+                        "description": "A list of tracks",
                         "items": {
                             "type": "object",
                             "properties": {
@@ -75,7 +76,7 @@ class TestPropertySerialization(unittest.TestCase):
                     },
                 }
 
-    def test_simple_property_serialization(self):
+    def test_simple_property(self):
         name =StringProperty(name="name",
                              description='Name of the person.')
 
@@ -90,7 +91,7 @@ class TestPropertySerialization(unittest.TestCase):
 
 
 
-    def test_array_property_serialization(self):
+    def test_array_property(self):
         command =StringItem(description='A terminal command string')
 
         commands = ArrayProperty(name="commands",
@@ -100,6 +101,21 @@ class TestPropertySerialization(unittest.TestCase):
         self.assertEqual(self.commands,
                          commands.model_dump(exclude_none=True))
 
+
+    def test_array_with_object(self):
+        artist = StringProperty(name="artist",
+                                 description='The artist of the track')
+
+        title = StringProperty(name="title",
+                                 description='The title of the track')
+        
+        track = ObjectItem(properties=[artist, title])
+
+        tracklist = ArrayProperty(name="tracklist",
+                                  items=track)
+
+        self.assertEqual(self.commands,
+                         commands.model_dump(exclude_none=True))
 
 if __name__ == "__main__":
     unittest.main()
