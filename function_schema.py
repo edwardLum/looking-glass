@@ -1,13 +1,13 @@
 from pydantic import BaseModel
 
-from typing import Union, List, Dict, Any
+from typing import Union, List, Dict, Any, Optional
 
 from pydantic.functional_serializers import model_serializer
 
 from pprint import pprint
 
 class Property(BaseModel):
-    name: str = None
+    name: str
     description: str
     property_type: str
 
@@ -18,7 +18,10 @@ class Property(BaseModel):
             "description": self.description,
             }}
 
-class Item(Property):
+class Item(BaseModel):
+    description: str
+    property_type: str
+
     @model_serializer
     def serialize_model(self):
         return {
@@ -82,25 +85,24 @@ class ObjectProperty(Property):
 
     }
 
+class ObjectItem(Item):
+    description = Optional[str]
+    property_type: str = "object"
+    properties: List[Union[StringProperty,
+                                IntegerProperty,
+                                ArrayProperty,
+                                BooleanProperty,
+                                FloatProperty]]
+
+    @model_serializer
+    def serialize_model(self):
+        properties_dict = {}
+        for prop in self.properties:
+            properties_dict.update(prop.model_dump())
+
+        return {
+            "type": self.property_type,
+            "properties": properties_dict,
+            }
 
 
-if __name__=="__main__":
-   artist = ArrayString(name="artist",
-                           description="The artist of the track")
-
-   artists = ArrayProperty(name="artists",
-                                items=artist,
-                                description="A list of artists")
-
-   artistProperty = StringProperty(name="artist",
-                           description="The artist of the track")
-
-   titleProperty = StringProperty(name="title",
-                               description="The title of the track")
-   pprint(artists.model_dump())
-   track = ObjectProperty(name="Track",
-                          description="A track with artist and title",
-                          properties=[artistProperty,
-                                      titleProperty])
-
-   pprint(track.model_dump())
