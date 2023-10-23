@@ -53,7 +53,7 @@ class ArrayProperty(Property):
     property_type: str = "array"
     items: Union["StringItem",
                  "IntegerItem",
-                 "ObjectProperty"]
+                 "ObjectItem"]
 
     @model_serializer
     def serialize_model(self):
@@ -86,7 +86,7 @@ class ObjectProperty(Property):
     }
 
 class ObjectItem(Item):
-    description = Optional[str]
+    description: Optional[str]
     property_type: str = "object"
     properties: List[Union[StringProperty,
                                 IntegerProperty,
@@ -104,5 +104,3 @@ class ObjectItem(Item):
             "type": self.property_type,
             "properties": properties_dict,
             }
-
-
