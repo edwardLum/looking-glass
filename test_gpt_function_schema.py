@@ -6,6 +6,7 @@ from function_schema import IntegerProperty, ObjectItem, StringProperty, ArrayPr
 
 class TestPropertySerialization(unittest.TestCase):
     def setUp(self):
+        self.maxDiff = None
         self.name = {
                 'name': {
                     'type': 'string',
@@ -65,11 +66,11 @@ class TestPropertySerialization(unittest.TestCase):
                             "properties": {
                                 "artist": {
                                     "type": "string",
-                                    "description": "The artist of the track.",
+                                    "description": "The artist of the track",
                                 },
                                 "title": {
                                     "type": "string",
-                                    "description": "The title of the track.",
+                                    "description": "The title of the track",
                                 },
                             }
                         },
@@ -108,14 +109,20 @@ class TestPropertySerialization(unittest.TestCase):
 
         title = StringProperty(name="title",
                                  description='The title of the track')
-        
-        track = ObjectItem(properties=[artist, title])
+
+        track = ObjectItem(properties=[artist, title],
+                            description="Whateer")
 
         tracklist = ArrayProperty(name="tracklist",
-                                  items=track)
+                                 items=track,
+                                 description="A list of tracks")
 
-        self.assertEqual(self.commands,
-                         commands.model_dump(exclude_none=True))
+        print(self.array_of_objects)
+        print(tracklist.model_dump(exclude_none=True))
+
+        self.assertEqual(self.array_of_objects,
+                         tracklist.model_dump(exclude_none=True),
+                         )
 
 if __name__ == "__main__":
     unittest.main()
