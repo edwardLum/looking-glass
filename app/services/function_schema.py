@@ -107,12 +107,23 @@ class ObjectItem(Item):
 class Function(BaseModel):
     description: str
     name: str
-    parameters: Property
+    properties: List[Union[StringProperty,
+                            IntegerProperty,
+                            ArrayProperty,
+                            BooleanProperty,
+                            FloatProperty]]
 
     @model_serializer
     def serialize_model(self):
+        properties_dict = {}
+        for prop in self.properties:
+            properties_dict.update(prop.model_dump())
+
         return {
         "name": self.name,
         "description": self.description,
-        "parameters": self.property.model_dump()
+        "parameters": {
+            "type": "object",
+            "properties": properties_dict
+        }
         }

@@ -1,6 +1,6 @@
 import pytest
 
-from app.services.function_schema import IntegerProperty, ObjectItem, StringProperty, ArrayProperty, StringItem
+from app.services.function_schema import IntegerProperty, ObjectItem, StringProperty, ArrayProperty, StringItem, Function
 
 
 @pytest.fixture
@@ -154,3 +154,9 @@ def test_function():
 
     format = StringProperty(name="format",
                             description="The temperature unit to use. Infer this from the users location.")
+
+    function = Function(name="get_current_weather",
+                        description="Get the current weather",
+                        properties = [location, format])
+
+    assert function_def == function.model_dump()
