@@ -8,9 +8,11 @@ from app.services.function_schema import Function, ArrayProperty, StringItem, St
 def campaign_structure_suggestion(business_category):
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
-    prompt_input =  f"""Hello! Can you please recommend a campaign structure for a Google Search Ads account?
-                       Please, provide a recommended tree structure of campaigns and ad groups with any number of these entities you deem necessary.
-                       The tree structure should include campaign and ad group names.
+    prompt_input =  f"""Hello! Please recommend a campaign structure for a Google Search Ads account.
+                       Provide a tree structure of campaigns and ad groups. Campaigns should be thematically separated and group relevant ad groups together.
+                       Name campaigns and ad groups according to their theme. Do not limit yourself on the number of campaigns and ad groups you are going to recommend.
+                       I would like to have a minimum of 5 campaigns with 10 a groups each. Campaign and ad groups names should only inlcude the actual campaign name,
+                       without any additions like "Cammpaign #1", "Campaign -" etc.
                        Please include a separate note with the rational behind your choices.
                        The business category of the account is {business_category}. """
 
