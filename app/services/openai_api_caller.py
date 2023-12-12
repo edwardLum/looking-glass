@@ -1,7 +1,5 @@
-import os
-import json
-
-import openai
+import instructor
+from instructor.distil import OpenAI
 
 class Caller():
     """
@@ -9,85 +7,56 @@ class Caller():
 
     Attributes:
     - prompt (str): The user's input or prompt for which a completion is desired.
-    - function (dict): The function configuration for OpenAI's API call.
+    - response_model (BaseModel): The Pydantic model that is used as the response model in the instructor client call.
+    - client (instructor.patch): The instructor client that will handle the OpenAI API call.
     - messages (list[dict]): A list of message objects, initially containing the user's prompt.
-    - function_call (dict): The function call configuration for OpenAI's API.
 
     Methods:
     - create_completion_call(): Make a chat completion call to OpenAI's API.
     - get_structured_completion(): Retrieve and structure the completion response from OpenAI's API.
     """
 
-    def __init__(self, prompt, function):
+    def __init__(self, prompt, response_model):
         """
         Initializes the Caller class.
 
         Args:
         - prompt (str): The user's input or prompt.
-        - function (dict): The function configuration for the API call.
         """
-        openai.api_key = os.getenv("OPENAI_API_KEY")
+        self.response_model = response_model
         self.prompt = prompt
-        self.function = function
+        self.client = instructor.patch((OpenAI()))
         self.messages = [
         {
             "role": "user",
             "content": self.prompt
         }
         ]
-        self.function_call = {"name": self.function["name"]}
+        self.returned_model = None
 
-    def create_completion_call(self):
+    def make_request(self):
         """
-        Make a chat completion call to OpenAI's API based on the provided prompt and function configuration.
+        Make a chat completion call to OpenAI's API based on the provided prompt, using the 
+        instructor client.
 
         Returns:
-        openai.ChatCompletion: The response from OpenAI's API.
+        Pydantic model: The response from instructor client.
         """
-        return openai.ChatCompletion.create(
+        self.returned_model = self.client.chat.completions.create(
             model="gpt-3.5-turbo-0613",
+            response_model = self.response_model,
             messages=self.messages,
-            functions=[self.function],
-            function_call=self.function_call
         )
 
 
-    def get_structured_completion(self):
+    def json_model(self):
         """
         Retrieve the structured completion response from OpenAI's API, focusing on the function call's arguments.
 
         Returns:
         dict: The structured arguments from the completion response.
         """
-        completion = self.create_completion_call()
-        content = completion.choices[0].message
-        structured_completion = content.to_dict()['function_call']['arguments']
-
-        return json.loads(structured_completion)
-
-test_f = {
-            "name": "get_tracklist",
-            "description": "Gets a list of tracks from a query.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "tracklist": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "artist": {
-                                    "type": "string",
-                                    "description": "The artist of the track.",
-                                },
-                                "title": {
-                                    "type": "string",
-                                    "description": "The title of the track.",
-                                },
-                            }
-                        },
-                    },
-                },
-                "required": ["tracklist"],
-            }
-        }
+        if self.returned_model:
+            return self.returned_model.model_dump_json()
+        
+        raise ValueError("Caller does not have a returned model. Try running make_request method first")
