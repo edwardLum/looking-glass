@@ -6,7 +6,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from openai_api_caller import Caller 
+from app.services.openai_api_caller import Caller 
 
 client = instructor.patch((OpenAI()))
 
