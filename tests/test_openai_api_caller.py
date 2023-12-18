@@ -1,5 +1,6 @@
 import pytest
 from app.services.openai_api_caller import Caller
+
 from unittest.mock import patch, MagicMock
 
 def test_caller_initialization():
